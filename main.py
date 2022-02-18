@@ -37,9 +37,9 @@ departments = {"Cashier": cBreaks,
                "Other": oBreaks,
                "Test": test}
 
-def initEmps():
+def initEmps(inputFile):
     ##reading emps from csv file into employee objects
-    with open('employees.csv', newline='') as empfile:
+    with open(inputFile, newline='') as empfile:
         emplines = csv.reader(empfile)
         for emp in emplines:
             empObj = Employees(str(emp[0]), int(emp[1]), int(emp[2]), str(emp[3]))
@@ -61,7 +61,9 @@ def insertionSort(arr):
         arr[j + 1] = keyObj
 
 
-initEmps()
+inputFile = input("Please specify input file\n")
+
+initEmps(inputFile)
 insertionSort(empObjs)
 
 breakObjs=[cBreaks, spBreaks, ssBreaks, hpBreaks, hsBreaks, accBreaks,
@@ -74,8 +76,15 @@ for i in range(len(empObjs)):
     
     deptClass.emps.append(empObjs[i])
 
+schedule = open(r"output.csv", "w")
+
 for i in range(len(breakObjs)):
+    schedule.write('\n')
+    schedule.write(breakObjs[i].name)
+    schedule.write('\n')
     for j in range(len(breakObjs[i].emps)):
-        print(breakObjs[i].emps[j].name)
         breakObjs[i].assignBreaks(breakObjs[i].emps[j])
-        breakObjs[i].emps[j].printInfo()
+        schedule.write(breakObjs[i].emps[j].writeToFile())
+        
+schedule.close()
+        
