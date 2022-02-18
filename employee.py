@@ -1,3 +1,5 @@
+from breakScheduler import *
+
 ##contains the employee class
 class Employees:
     name = ""
@@ -55,6 +57,11 @@ class Employees:
               '\nRest Break 1: ' + str(self.restBreak1) + ' Meal Break: ' + str(self.mealBreak1) +
               ' Rest Break 2: ' + str(self.restBreak2))
         
+    def writeToFile(self):
+        output = self.name + ',' + str(toHM(self.startTime)) + '-' + str(toHM(self.endTime)) + ',' + str(self.restBreak1) + ',' + str(self.mealBreak1) + ',' +str(self.restBreak2) + '\n'
+        
+        return output
+    
     def getStartTime(self):
         return self.startTime
     
