@@ -1,5 +1,4 @@
 ##contains the breakSlots class
-
 from employee import *
 import ast
 
@@ -12,11 +11,15 @@ class breakSlots:
     name = ""
     breakArr = [0]
     emps = []
+    dispRow = 0
+    dispCol = 0
     
-    def __init__(self, breakArrLen, name):
+    def __init__(self, breakArrLen, name, row, col):
         self.breakArr = self.breakArr * breakArrLen
         self.name = name
         self.emps = []
+        self.dispRow = row
+        self.dispCol = col
     
     def assignRestBreak(self, emp, optTime, attempts):
         #print(emp.name)
@@ -114,6 +117,9 @@ class breakSlots:
         lunch = toHM(lunch)
         break2 = toHM(break2)
         emp.assignBreaks(break1, lunch, break2)
+        
+    def getName(self):
+        return self.name
         
 
 ##time management
