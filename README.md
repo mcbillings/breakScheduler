@@ -5,11 +5,13 @@ Current functionality:
 -reads employees from a file containing their start, end, and department
 -calculates duration of shift, number of rest breaks and meal breaks
 -schedules breaks depending on number of rest breaks and meals breaks in accordance to California law without overlapping with employees in the same department
--creates csv output file of schedule that converts time from hourportion to hhmm format
+-generates input fields for specified number of employees
 
 Currently working on:
--designing a GUI
+-making schedule button work more than once per run
+-redoing the GUI so it is consistent across different screens
 
 Goals:
--create a GUI 
 -allow user to manually schedule certain breaks
+-allow user to print schedule from program
+-allow user to open a schedule file and auto populate input fields with that information

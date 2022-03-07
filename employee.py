@@ -68,6 +68,15 @@ class Employees:
     def getEndTime(self):
         return self.endTime
     
+    def getRestBreak1(self):
+        return self.restBreak1
+    
+    def getRestBreak2(self):
+        return self.restBreak2
+    
+    def getMealBreak(self):
+        return self.mealBreak1
+    
     def getRestBreaks(self):
         return self.restBreaks
     
@@ -76,3 +85,6 @@ class Employees:
     
     def getDepartment(self):
         return self.department
+    
+    def getName(self):
+        return self.name
