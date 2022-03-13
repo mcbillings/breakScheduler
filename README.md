@@ -19,7 +19,7 @@ Currently working on: <br />
 -color cells based on special attribute "clean"
 -allow "pricer" employees to overlap by 15 mins on their lunch with a non-pricer in the same department  <br />
 
-Goals:
+Goals: <br />
 -allow user to manually schedule certain breaks <br />
 -export break schedule to excel to be printed<br />
 -allow user to open a schedule file and auto populate input fields with that information <br />
