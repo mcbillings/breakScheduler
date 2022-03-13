@@ -1,21 +1,21 @@
 ###This is a program that takes a day's schedule and schedules breaks according to California law
 
+##Author: Mikayla Billings-Alston
+
+######################################################
+######################################################
+##-------------BREAK SCHEDULER----------------------##
+######################################################
+######################################################
+
 ##import files/modules
 from employee import *
 from breakScheduler import *
 from tkinter import *
 from tkinter import ttk, simpledialog
+from Pmw import ScrolledFrame
 import csv
 import ctypes
-
-try: # Windows 8.1 and later
-    ctypes.windll.shcore.SetProcessDpiAwareness(2)
-except Exception as e:
-    pass
-try: # Before Windows 8.1
-    ctypes.windll.user32.SetProcessDPIAware()
-except: # Windows 8 or before
-    pass
 
 
 ##variable/list declairations
@@ -24,7 +24,7 @@ empObjs = []
 breakObjs = []
 
 def insertionSort(arr):
-    ##Using this since employees in a given day will be around 21-35
+    ##Using insertion sort since employees in a given day will be around 21-35
     ##will also assign each employee to their department since we're already iterating over
     ##every item
     for i in range(1, len(arr)):
@@ -39,7 +39,6 @@ def insertionSort(arr):
         arr[j + 1] = keyObj
 
 ##Break Objs by department
-global cBreaks
 cBreaks = breakSlots(53, "Cashier", 7, 0)
 spBreaks = breakSlots(35, "Soft Production", 0, 6)
 ssBreaks = breakSlots(53, "Soft Stocking", 11, 6)
@@ -67,7 +66,9 @@ departments = {"Cashier": cBreaks,
                "Other": oBreaks,
                "Test": test}
 
-##setting up window
+#################################
+##----------ROOT SETUP---------##
+#################################
 root = Tk()
 root.state("iconic")
 
@@ -75,33 +76,86 @@ root.state("iconic")
 numEmps = simpledialog.askinteger("Enter number of Employees", "Enter number of Employees")
 root.state("zoomed")
 
-rows = 0
+#Grid configuration
+Grid.columnconfigure(root, 0, weight = 4)
+Grid.columnconfigure(root, 1, weight = 3)
 
-##setting up employee section of the window
-global empsNames
+Grid.rowconfigure(root, 0, weight = 2)
+Grid.rowconfigure(root, 1, weight = 15)
+Grid.rowconfigure(root, 2, weight = 3)
+Grid.rowconfigure(root, 3, weight = 1)
+
+def addEmp():
+    i = len(empsNames)
+    global numEmps
+    numEmps += 1
+    empName = Entry(empsFrame)
+    empsNames.append(empName)
+    empName.grid(row = i+1, column = 0, sticky = 'ew')
+    
+    empDept = StringVar()
+    empDepartment = OptionMenu(empsFrame, empDept, *departmentsList)
+    empsDepts.append(empDept)
+    empDepartment.grid(row = i+1, column = 1, sticky = 'ew')
+    
+    empStart = Entry(empsFrame, width = 10)
+    empsStart.append(empStart)
+    empStart.grid(row = i+1, column = 2, sticky = 'ew')
+    
+    s = IntVar(value = 0)
+    empSPM = Checkbutton(empsFrame, variable = s)
+    empsSPM.append(s)
+    empSPM.grid(row = i + 1, column = 3)
+    
+    empEnd = Entry(empsFrame, width = 10)
+    empsEnd.append(empEnd)
+    empEnd.grid(row = i+1, column = 4, sticky = 'ew')
+    
+    e = IntVar(value = 1)
+    empEPM = Checkbutton(empsFrame, variable = e)
+    empsEPM.append(e)
+    empEPM.grid(row = i + 1, column = 5)
+    
+    b = IntVar(value = 0)
+    empBackup = Checkbutton(empsFrame, variable = b)
+    empsBackup.append(b)
+    empBackup.grid(row = i + 1, column = 6)
+    
+    empSpec = StringVar()
+    empSpecial = OptionMenu(empsFrame, empSpec, *specialList)
+    empsSpecial.append(empSpec)
+    empSpecial.grid(row = i+1, column = 7, sticky = 'ew')
+    
+    scrollableFrame.grid(row = 1, column = 0, sticky = 'nsew')
+
+
+#################################
+##--------LABEL SETUP----------##
+#################################
+
+Label(root, text = "Break Scheduler", font = ("Arial", 20)).grid(row = 0, column = 0, sticky = 'w')
+Label(root, text = "Date: ", font = ("Arial", 20)).grid(row = 0, column = 1, sticky = 'w')
+
+#################################
+##--------EMPLOYEE SETUP-------##
+#################################
+
+#Employee arrays used to populate employee objects after being entered
 empsNames = []
 empsDepts = []
 empsStart = []
 empsEnd = []
 empsSPM = []
 empsEPM = []
+empsBackup = []
+empsSpecial = []
 
-empsFrame = ttk.Frame(root)
-empsCanvas = Canvas(empsFrame)
-empsScrollbar = ttk.Scrollbar(empsFrame, orient="vertical", command=empsCanvas.yview)
-empsScrollableFrame = ttk.Frame(empsCanvas)
+#Frame for all input fields
+scrollableFrame = ScrolledFrame(root, horizflex = 'expand')
+empsFrame = scrollableFrame.interior()
 
 
-empsScrollableFrame.bind(
-    "<Configure>",
-    lambda e: empsCanvas.configure(
-        scrollregion=empsCanvas.bbox("all")
-        )
-    )
-
-empsCanvas.create_window((0, 0), window=empsScrollableFrame, anchor="nw")
-empsCanvas.configure(yscrollcommand=empsScrollbar.set)
-
+#Lists to be used with dropdown menus
 departmentsList = ["Cashier",
                "Soft Production",
                "Soft Stocking",
@@ -114,144 +168,120 @@ departmentsList = ["Cashier",
                "Warehouse",
                "Other"]
 
-sWidth = root.winfo_screenwidth()
+specialList = ["None",
+               "Pricer",
+               "Clean",
+               "Fitting Room"]
+
+#Grid configuration
+Grid.columnconfigure(empsFrame, index = 0, weight = 9)
+Grid.columnconfigure(empsFrame, index = 1, weight = 12)
+Grid.columnconfigure(empsFrame, index = 2, weight = 2)
+Grid.columnconfigure(empsFrame, index = 4, weight = 2)
+Grid.columnconfigure(empsFrame, index = 7, weight = 5)
 
 
 for i in range(numEmps):
-    empName = Entry(empsScrollableFrame, width = int(sWidth * 1.5/96))
-    empsNames.append(empName)
-    empName.grid(row = i+1, column = 0)
+    #Populating input area with input fields
+    addEmp()
+    numEmps -= 1
     
-    empDept = StringVar()
-    empDepartment = OptionMenu(empsScrollableFrame, empDept, *departmentsList)
-    empDepartment.config(width = int(sWidth * 1/96))
-    empsDepts.append(empDept)
-    empDepartment.grid(row = i+1, column = 1)
-    
-    empStart = Entry(empsScrollableFrame, width = int(sWidth * 0.5/96))
-    empsStart.append(empStart)
-    empStart.grid(row = i+1, column = 2)
-    
-    s = IntVar(value = 0)
-    empSPM = Checkbutton(empsScrollableFrame, variable = s)
-    empsSPM.append(s)
-    empSPM.grid(row = i + 1, column = 3)
-    
-    empEnd = Entry(empsScrollableFrame, width = int(sWidth * 0.5/96))
-    empsEnd.append(empEnd)
-    empEnd.grid(row = i+1, column = 4)
-    
-    e = IntVar(value = 1)
-    empEPM = Checkbutton(empsScrollableFrame, variable = e)
-    empsEPM.append(e)
-    empEPM.grid(row = i + 1, column = 5)
-    
-    
-Label(empsScrollableFrame, text = "Name").grid(row = 0, column = 0)
-Label(empsScrollableFrame, text = "Department").grid(row = 0, column = 1)
-Label(empsScrollableFrame, text = "Start").grid(row = 0, column = 2)
-Label(empsScrollableFrame, text = "PM?").grid(row = 0, column = 3)
-Label(empsScrollableFrame, text = "End").grid(row = 0, column = 4)
-Label(empsScrollableFrame, text = "PM?").grid(row = 0, column = 5)
+#Labels for input fields
+Label(empsFrame, text = "Name").grid(row = 0, column = 0, sticky = 'w')
+Label(empsFrame, text = "Department").grid(row = 0, column = 1, sticky = 'w')
+Label(empsFrame, text = "Start").grid(row = 0, column = 2, sticky = 'w')
+Label(empsFrame, text = "PM?").grid(row = 0, column = 3, sticky = 'w')
+Label(empsFrame, text = "End").grid(row = 0, column = 4, sticky = 'w')
+Label(empsFrame, text = "PM?").grid(row = 0, column = 5, sticky = 'w')
+Label(empsFrame, text = "Backup?").grid(row = 0, column = 6, sticky = 'w')
+Label(empsFrame, text = "Special Attribute").grid(row = 0, column = 7, sticky = 'w')
   
+#binding mousewheel to employee input frame
 def _on_mousewheel(event):
-    empsCanvas.yview_scroll(int(-1*event.delta/120), "units")  
+    scrollableFrame.yview(mode = 'scroll', value = int(-1*event.delta/120))  
 
-empsCanvas.bind_all("<MouseWheel>", _on_mousewheel)
-  
-  
-empsFrame.place(relheight = 5/7, relwidth = 3/8)
-empsCanvas.pack(side = "left", fill="both", expand=True)
-empsScrollbar.pack(side = "right", fill = "y")
+scrollableFrame.bind_all("<MouseWheel>", _on_mousewheel)
+
+#Griding frame to screen
+scrollableFrame.grid(row = 1, column = 0, sticky = 'nsew')
 
 
-nameWidth = 15
-timeWidth = 10
-
-##SCHEDULE SET UP
+#################################
+##--------SCHEDULE SETUP-------##
+#################################
 scheduleFrame = Frame(root)
+
+Grid.columnconfigure(scheduleFrame, 0, weight = 6)
+Grid.columnconfigure(scheduleFrame, 1, weight = 2)
+Grid.columnconfigure(scheduleFrame, 2, weight = 2)
+Grid.columnconfigure(scheduleFrame, 3, weight = 2)
+Grid.columnconfigure(scheduleFrame, 4, weight = 2)
+Grid.columnconfigure(scheduleFrame, 6, weight = 6)
+Grid.columnconfigure(scheduleFrame, 7, weight = 2)
+Grid.columnconfigure(scheduleFrame, 8, weight = 2)
+Grid.columnconfigure(scheduleFrame, 9, weight = 2)
+Grid.columnconfigure(scheduleFrame, 10, weight = 2)
+
 for col in range(5):
     for row in range(33):
+        Grid.rowconfigure(scheduleFrame, index = row, weight = 1)
         if col == 0 or col == 5:
-            Label(scheduleFrame, width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = row, column = col)
-            Label(scheduleFrame, width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = row, column = col + 6)
+            Label(scheduleFrame, borderwidth = 1, relief = 'solid').grid(row = row, column = col, sticky = 'nsew')
+            Label(scheduleFrame, borderwidth = 1, relief = 'solid').grid(row = row, column = col + 6, sticky = 'nsew')
         else:
-            Label(scheduleFrame, width = timeWidth, borderwidth = 1, relief = 'solid').grid(row = row, column = col)
-            Label(scheduleFrame, width = timeWidth, borderwidth = 1, relief = 'solid').grid(row = row, column = col + 6)
+            Label(scheduleFrame, borderwidth = 1, relief = 'solid').grid(row = row, column = col, sticky = 'nsew')
+            Label(scheduleFrame, borderwidth = 1, relief = 'solid').grid(row = row, column = col + 6, sticky = 'nsew')
         
 
 ##class labels
-Label(scheduleFrame, text = "Managers", width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = 0, column = 0)
-Label(scheduleFrame, text = "Cashiers", width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = 7, column = 0)
-Label(scheduleFrame, text = "ACC", width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = 16, column = 0)
-Label(scheduleFrame, text = "Shoes", width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = 22, column = 0)
-Label(scheduleFrame, text = "New Goods", width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = 24, column = 0)
-Label(scheduleFrame, text = "Books/Jewlery", width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = 26, column = 0)
-Label(scheduleFrame, text = "Soft Production", width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = 0, column = 6)
-Label(scheduleFrame, text = "Wares Production", width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = 6, column = 6)
-Label(scheduleFrame, text = "Apparel Stockers", width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = 11, column = 6)
-Label(scheduleFrame, text = "Wares Stockers", width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = 18, column = 6)
-Label(scheduleFrame, text = "Other", width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = 27, column = 6)
-Label(scheduleFrame, text = "Warehouse", width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = 31, column = 6)
+Label(scheduleFrame, text = "Managers",  borderwidth = 1, relief = 'solid').grid(row = 0, column = 0, sticky = 'nsew')
+Label(scheduleFrame, text = "Cashiers",  borderwidth = 1, relief = 'solid').grid(row = 7, column = 0, sticky = 'nsew')
+Label(scheduleFrame, text = "ACC", borderwidth = 1, relief = 'solid').grid(row = 16, column = 0, sticky = 'nsew')
+Label(scheduleFrame, text = "Shoes", borderwidth = 1, relief = 'solid').grid(row = 22, column = 0, sticky = 'nsew')
+Label(scheduleFrame, text = "New Goods", borderwidth = 1, relief = 'solid').grid(row = 24, column = 0, sticky = 'nsew')
+Label(scheduleFrame, text = "Books/Jewlery", borderwidth = 1, relief = 'solid').grid(row = 26, column = 0, sticky = 'nsew')
+Label(scheduleFrame, text = "Soft Production", borderwidth = 1, relief = 'solid').grid(row = 0, column = 6, sticky = 'nsew')
+Label(scheduleFrame, text = "Wares Production", borderwidth = 1, relief = 'solid').grid(row = 6, column = 6, sticky = 'nsew')
+Label(scheduleFrame, text = "Apparel Stockers", borderwidth = 1, relief = 'solid').grid(row = 11, column = 6, sticky = 'nsew')
+Label(scheduleFrame, text = "Wares Stockers", borderwidth = 1, relief = 'solid').grid(row = 18, column = 6, sticky = 'nsew')
+Label(scheduleFrame, text = "Other", borderwidth = 1, relief = 'solid').grid(row = 27, column = 6, sticky = 'nsew')
+Label(scheduleFrame, text = "Warehouse", borderwidth = 1, relief = 'solid').grid(row = 31, column = 6, sticky = 'nsew')
 
-scheduleFrame.place(relwidth = 5/8, relx = 7/16, rely = 0.5/16, relheight = 6/7)
+scheduleFrame.grid(row = 1, column = 1, sticky = 'nsew', padx = 10)
 
-##Options Set up
+#################################
+##--------OPTIONS SETUP--------##
+#################################
+
 optionsFrame = ttk.Frame(root)
+    
+Grid.columnconfigure(optionsFrame, 0, weight = 2)
+Grid.columnconfigure(optionsFrame, 1, weight = 2)
+Grid.columnconfigure(optionsFrame, 2, weight = 10)
+Grid.columnconfigure(optionsFrame, 3, weight = 2)
 
 
-def addEmp():
-    i = len(empsNames)
-    empName = Entry(empsScrollableFrame, width = int(sWidth * 1.5/96))
-    empsNames.append(empName)
-    empName.grid(row = i+1, column = 0)
-    
-    empDept = StringVar()
-    empDepartment = OptionMenu(empsScrollableFrame, empDept, *departmentsList)
-    empDepartment.config(width = int(sWidth * 1/96))
-    empsDepts.append(empDept)
-    empDepartment.grid(row = i+1, column = 1)
-    
-    empStart = Entry(empsScrollableFrame, width = int(sWidth * 0.5/96))
-    empsStart.append(empStart)
-    empStart.grid(row = i+1, column = 2)
-    
-    s = IntVar()
-    empSPM = Checkbutton(empsScrollableFrame, variable = s)
-    empsSPM.append(s)
-    empSPM.grid(row = i + 1, column = 3)
-    
-    empEnd = Entry(empsScrollableFrame, width = int(sWidth * 0.5/96))
-    empsEnd.append(empEnd)
-    empEnd.grid(row = i+1, column = 4)
-    
-    e = IntVar()
-    empEPM = Checkbutton(empsScrollableFrame, variable = e)
-    empsEPM.append(e)
-    empEPM.grid(row = i + 1, column = 5)
-    
-    empsFrame.place(relheight = 5/7, relwidth = 3/8)
-    empsCanvas.pack(side = "left", fill="both", expand=True)
-    empsScrollbar.pack(side = "right", fill = "y")
+Button(optionsFrame, text = "Schedule", command = lambda: initEmps(empsNames, empsDepts, empsStart, empsSPM, empsEnd, empsEPM, breakObjs, empObjs)).grid(column = 1, row = 1)
+Button(optionsFrame, text = "Add Employee", command = addEmp).grid(column = 0, row = 1)
+Button(optionsFrame, text = "Add Date").grid(column = 3, row = 1)
 
-Button(optionsFrame, text = "Schedule", command = lambda: initEmps(empsNames, empsDepts, empsStart, empsSPM, empsEnd, empsEPM, breakObjs, empObjs)).place(relx = 1/12, rely = 1/12, relwidth = 1/12, relheight = 1/3)
-Button(optionsFrame, text = "Add Employee", command = addEmp).place(relx = 4/12, rely = 1/12, relwidth = 1/12, relheight = 1/3)
-Button(optionsFrame, text = "Add Date").place(relx = 9/12, rely = 1/12, relwidth = 1/12, relheight = 1/3)
-
-optionsFrame.place(relwidth = 1, relheight = 1/7, relx = 0, rely = 6/7)
+optionsFrame.grid(row = 2, column = 0, columnspan = 2, sticky='nsew', pady = 5)
 
 def initEmps(names, depts, start, sPM, end, ePM, breakObjs, empObjs):
-    for i in range(numEmps):       
+    for i in range(numEmps):
         if (len(names[i].get()) == 0 or len(start[i].get()) == 0 or len(end[i].get()) == 0 or len(depts[i].get()) == 0):
-            pass
+            print("Something is empty.")
         else:
+            print(str(names[i].get()) + " being handled")
             ##converting Time
             startConverted = toHP(int(start[i].get()), int(sPM[i].get()))
             endConverted = toHP(int(end[i].get()), int(ePM[i].get()))
             
             empObj = Employees(str(names[i].get()), startConverted, endConverted, str(depts[i].get()))
+            print("empObj for " +str(names[i].get()) + " created")
+            print(str(names[i].get()) + " dept = " + str(empObj.getDepartment()))
             empObjs.append(empObj)
-        
+
     insertionSort(empObjs)
     
     for i in range(len(empObjs)):
@@ -267,22 +297,25 @@ def initEmps(names, depts, start, sPM, end, ePM, breakObjs, empObjs):
         for emp in range(len(breakObjs[dept].emps)):
             empObj = breakObjs[dept].emps[emp]
             breakObjs[dept].assignBreaks(empObj)
-            Label(scheduleFrame, text = empObj.getName(), width = nameWidth, borderwidth = 1, relief = 'solid').grid(row = emp + breakObjs[dept].dispRow + 1, column = breakObjs[dept].dispCol)
-            Label(scheduleFrame, text = str(toHM(empObj.getStartTime())) + "-"+ str(toHM(empObj.getEndTime())), width = 10, borderwidth = 1, relief = 'solid').grid(row = emp + breakObjs[dept].dispRow + 1, column = breakObjs[dept].dispCol + 1)
-            Label(scheduleFrame, text = empObj.getRestBreak1(), width = timeWidth, borderwidth = 1, relief = 'solid').grid(row = emp + breakObjs[dept].dispRow + 1, column = breakObjs[dept].dispCol + 2)
-            Label(scheduleFrame, text = empObj.getMealBreak(), width = timeWidth, borderwidth = 1, relief = 'solid').grid(row = emp + breakObjs[dept].dispRow + 1, column = breakObjs[dept].dispCol + 3)
-            Label(scheduleFrame, text = empObj.getRestBreak2(), width = timeWidth, borderwidth = 1, relief = 'solid').grid(row = emp + breakObjs[dept].dispRow + 1, column = breakObjs[dept].dispCol + 4)
+            Label(scheduleFrame, text = empObj.getName(), borderwidth = 1, relief = 'solid').grid(row = emp + breakObjs[dept].dispRow + 1, column = breakObjs[dept].dispCol, sticky = 'nsew')
+            Label(scheduleFrame, text = str(toHM(empObj.getStartTime())) + "-"+ str(toHM(empObj.getEndTime())), borderwidth = 1, relief = 'solid').grid(row = emp + breakObjs[dept].dispRow + 1, column = breakObjs[dept].dispCol + 1, sticky = 'nsew')
+            Label(scheduleFrame, text = empObj.getRestBreak1(), borderwidth = 1, relief = 'solid').grid(row = emp + breakObjs[dept].dispRow + 1, column = breakObjs[dept].dispCol + 2, sticky = 'nsew')
+            Label(scheduleFrame, text = empObj.getMealBreak(), borderwidth = 1, relief = 'solid').grid(row = emp + breakObjs[dept].dispRow + 1, column = breakObjs[dept].dispCol + 3, sticky = 'nsew')
+            Label(scheduleFrame, text = empObj.getRestBreak2(), borderwidth = 1, relief = 'solid').grid(row = emp + breakObjs[dept].dispRow + 1, column = breakObjs[dept].dispCol + 4, sticky = 'nsew')
 
     for i in range(len(breakObjs)):
         breakObjs[i].emps.clear()
-        breakObjs[i].breakArr.clear()
-    
-    for i in range(len(names)):
-        print(names[i].get())
+        breakObjs[i].resetBreaks()
+        
+    empObjs.clear()
 
-    scheduleFrame.place(relwidth = 5/8, relx = 7/16, rely = 0.5/16, relheight = 6/7)
+    scheduleFrame.grid(row = 1, column = 1, sticky = 'nsew', padx = 10)
     
                    
-                   
+#################################
+##---------CREDIT SETUP--------##
+#################################
+    
+Label(root, text = "Built by Mikayla Billings-Alston, https://github.com/mcbillings/", font = ("Arial", 11)).grid(row = 3, column = 1, sticky = 'se')               
 
 root.mainloop()

@@ -20,8 +20,13 @@ class breakSlots:
         self.emps = []
         self.dispRow = row
         self.dispCol = col
+        
+    def resetBreaks(self):
+        breakArrLen = len(self.breakArr)
+        self.breakArr = [0] * breakArrLen
     
     def assignRestBreak(self, emp, optTime, attempts):
+        print(len(self.breakArr))
         #print(emp.name)
         empEndTime = emp.getEndTime()
         breakSlot = self.slotsIndexes.get(optTime)
