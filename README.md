@@ -2,10 +2,10 @@
 This program will take a schedule for a given day and assign 15 minute and 30 minute breaks according to the duration of their shift without allowing overlapping breaks for employees within the same department.
 
 Current functionality: <br />
--reads employees from a file containing their start, end, and department <br />
+-generates input fields for specified number of employees <br />
+-takes user input to create employee objects containing their start time, end time, and department <br />
 -calculates duration of shift, number of rest breaks and meal breaks <br />
 -schedules breaks depending on number of rest breaks and meals breaks in accordance to California law without overlapping with employees in the same department <br />
--generates input fields for specified number of employees <br />
  <br />
  New this version:  <br />
  -Overhauled GUI so it's consistant across screens  <br />
