@@ -12,16 +12,24 @@ class Employees:
     restBreak2 = 0
     mealBreak1 = 0
     department = "none"
+    backup = 0
+    index = -1
+    specialAttribute = "none"
     
-    def __init__(self, n, sT, eT, dep):
+    def __init__(self, n, sT, eT, dep, sa, b):
         ##Initilizes employee with all necessary parameters
         self.name = n
         self.startTime = sT
         self.endTime = eT
         self.department = dep
         self.duration = eT-sT
+        self.specialAttribute = sa
+        self.backup = b
         self.calculateBreaks()
-        print(self.name + ' init complete.')
+    
+    @classmethod
+    def placeholderEmp(cls):
+        cls.name = "placeholder"
     
     def calculateBreaks(self):
         ##calculates the number of rest and meal breaks according to shift duration
@@ -35,14 +43,25 @@ class Employees:
             self.restBreaks = 1
             self.mealBreaks = 0
             
+        elif self.duration < 601:
+            ##employee works 5:01-6:00 hours
+            self.restBreaks = 0
+            self.mealBreaks = 1
+        
+        elif self.duration < 651:
+            ##employee works 6:01-6:30 hours
+            self.restBreaks = 1
+            self.mealBreaks = 1
+            
         elif self.duration < 1001:
-            ##employee works 5:01-10:00 hours
+            ##employee works 6:01-10:00 hours
             self.restBreaks = 2
             self.mealBreaks = 1
         else:
             ##employee works over 10 hours
             self.restBreaks = 2
             self.mealBreaks = 2
+        
             
     def assignBreaks(self, break1, lunch, break2):
         self.restBreak1 = break1
@@ -87,4 +106,18 @@ class Employees:
         return self.department
     
     def getName(self):
+        if self.department == "Fitting Room":
+            return self.name + " (FR)"
+        elif self.specialAttribute == "Clean":
+            return self.name + " (Clean)"
+        elif self.specialAttribute == "Nytch":
+            return self.name + " (NY)"
+        elif self.specialAttribute == "Ecom":
+            return self.name + " (ECOM)"
         return self.name
+    
+    def getAttribute(self):
+        return self.specialAttribute
+    
+    def getBackup(self):
+        return self.backup
