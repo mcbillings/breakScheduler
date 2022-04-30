@@ -1,10 +1,7 @@
 ##contains the breakSlots class
 from employee import *
 import ast
-
-with open('breakSlots.txt') as slotsFile:
-    slotsData = slotsFile.read()
-    slots = ast.literal_eval(slotsData)
+from breakSlots import *
 
 class breakSlots:
     slotsIndexes = slots
@@ -26,71 +23,138 @@ class breakSlots:
         self.breakArr = [0] * breakArrLen
     
     def assignRestBreak(self, emp, optTime, attempts):
-        print(len(self.breakArr))
-        #print(emp.name)
+        ##if breakArr[i] = 0, break is open
+        ##breakArr[i] = 1, break is taken but can be overlapped by 15 mins by pricer
+        ##breakArr[i] = 2, break is taken by pricer
         empEndTime = emp.getEndTime()
+        empSA = emp.getAttribute()
+        empMarker = 1
+        
+        if empSA == 'Pricer':
+            empMarker = 2
+            
+        print("optTime: " + str(optTime))
         breakSlot = self.slotsIndexes.get(optTime)
-        #print("Checking rest break " + str(optTime) + " on attempt " + str(attempts))
+        if breakSlot == None:
+            if attempts == 4:
+                ##begin looking for slot before optimal time
+                return self.assignRestBreak(emp, optTime - 75, attempts + 1)
+            elif attempts < 8:
+                return self.assignRestBreak(emp, optTime - 25, attempts + 1)
+            else:
+                print("Could not find suitable break.")
+                return -1
         
         if optTime < empEndTime-100:
             ##Checking break isn't scheduled within 1 hour of end time
             if int(self.breakArr[breakSlot]) == 0:
                 #print("Found suitable break at " + str(optTime))
                 ##found suitable rest break
-                self.breakArr[breakSlot] = 1
+                self.breakArr[breakSlot] = empMarker
                 return optTime
             else:
-                if attempts < 3:
+                if attempts < 4:
                     ##look for slot after optimal time
                     return self.assignRestBreak(emp, optTime + 25, attempts + 1)
-                elif attempts == 3:
+                elif attempts == 4:
                     ##begin looking for slot before optimal time
                     return self.assignRestBreak(emp, optTime - 75, attempts + 1)
-                elif attempts < 6:
+                elif attempts < 8:
                     return self.assignRestBreak(emp, optTime - 25, attempts + 1)
                 else:
                     print("Could not find suitable break.")
                     return -1
         else:
-            if attempts == 3:
+            if attempts == 4:
                 ##begin looking for slot before optimal time
                 return self.assignRestBreak(emp, optTime - 75, attempts + 1)
-            elif attempts < 5:
+            elif attempts < 8:
                 return self.assignRestBreak(emp, optTime - 25, attempts + 1)
             else:
                 print("Could not find suitable break.")
                 return -1
     
     def assignMealBreak(self, emp, optTime, attempts):
-        #print(emp.name)
         empStartTime = emp.getStartTime()
         breakSlot = self.slotsIndexes.get(optTime)
-        #print("Checking meal break " + str(optTime) + " on attempt " + str(attempts))
+        empSA = emp.getAttribute()
+        empMarker = 1
+        if empSA == 'Pricer':
+            empMarker = 2
+            print("Pricer")
+            
+        print("Looking for lunch for " + emp.getName())
         
         if optTime <= empStartTime + 450:
+            print("before 5 hrs")
             ##Checking break isn't scheduled within 1 hour of end time
             if (int(self.breakArr[breakSlot]) == 0) and (int(self.breakArr[breakSlot+1]) == 0):
                 ##found suitable rest break
-                self.breakArr[breakSlot] = 1
-                self.breakArr[breakSlot+1] = 1
+                print("Found totally open lunch")
+                self.breakArr[breakSlot] = empMarker
+                self.breakArr[breakSlot+1] = empMarker
+                print(optTime)
                 return optTime
+            elif ((int(self.breakArr[breakSlot]) == 0) and (int(self.breakArr[breakSlot+1]) == 1)) or ((int(self.breakArr[breakSlot]) == 1) and (int(self.breakArr[breakSlot+1]) == 0)): 
+                print("Found semi-Open")
+                if empMarker == 2:
+                    ##found suitable rest break
+                    print("Found overlapping time")
+                    self.breakArr[breakSlot] = empMarker
+                    self.breakArr[breakSlot+1] = empMarker
+                    print(optTime)
+                    return optTime
+                else:
+                    if attempts < 4:
+                        ##look for slot after optimal time
+                        return self.assignMealBreak(emp, optTime + 25, attempts + 1)
+                    elif attempts == 4:
+                        ##begin looking for slot before optimal time
+                        return self.assignMealBreak(emp, optTime - 75, attempts + 1)
+                    elif attempts < 8:
+                        return self.assignMealBreak(emp, optTime - 25, attempts + 1)
+                    else:
+                        print("Could not find suitable lunch.")
+                        return -1
+            elif ((int(self.breakArr[breakSlot]) == 0) and (int(self.breakArr[breakSlot+1]) == 2)) or ((int(self.breakArr[breakSlot]) == 2) and (int(self.breakArr[breakSlot+1]) == 0)): 
+                print("Found semi-Open")
+                if empMarker == 1:
+                    ##found suitable rest break
+                    print("Found overlapping time")
+                    self.breakArr[breakSlot] = empMarker
+                    self.breakArr[breakSlot+1] = empMarker
+                    print(optTime)
+                    return optTime
+                else:
+                    if attempts < 4:
+                        ##look for slot after optimal time
+                        return self.assignMealBreak(emp, optTime + 25, attempts + 1)
+                    elif attempts == 4:
+                        ##begin looking for slot before optimal time
+                        return self.assignMealBreak(emp, optTime - 75, attempts + 1)
+                    elif attempts < 8:
+                        return self.assignMealBreak(emp, optTime - 25, attempts + 1)
+                    else:
+                        print("Could not find suitable lunch.")
+                        return -1
             else:
-                if attempts < 3:
+                print("No above cases")
+                if attempts < 4:
                     ##look for slot after optimal time
                     return self.assignMealBreak(emp, optTime + 25, attempts + 1)
-                elif attempts == 3:
+                elif attempts == 4:
                     ##begin looking for slot before optimal time
                     return self.assignMealBreak(emp, optTime - 75, attempts + 1)
-                elif attempts < 7:
+                elif attempts < 8:
                     return self.assignMealBreak(emp, optTime - 25, attempts + 1)
                 else:
                     print("Could not find suitable lunch.")
                     return -1
         else:
-            if attempts == 3:
+            if attempts == 4:
                 ##begin looking for slot before optimal time
                 return self.assignMealBreak(emp, optTime - 75, attempts + 1)
-            elif attempts < 7:
+            elif attempts < 8:
                 return self.assignMealBreak(emp, optTime - 25, attempts + 1)
             else:
                 print("Could not find suitable lunch.")
@@ -105,18 +169,88 @@ class breakSlots:
         lunch = 0
         break2 = 0
         
-        if restBreaks == 0:
+        if self.name == "Other":
+            if restBreaks == 0 and mealBreaks == 0:
+                return
+            
+            if restBreaks == 1:
+                break1 = startTime + 150
+            elif restBreaks > 1:
+                break1 = startTime + 200
+            
+            if break1 == -1:
+                    break1 = startTime + 200
+                
+            if mealBreaks > 0:
+                if restBreaks == 0:
+                    lunch = startTime + 250
+                elif restBreaks == 1:
+                    ##person is working ~6 Hours
+                    lunch = break1 + 150
+                    if lunch == -1:
+                        lunch = break1 + 150
+                elif break1 != -1:
+                    lunch = break1 + 200
+                    if lunch == -1:
+                        lunch = break1 + 200
+                else:
+                    lunch = -1
+                
+            if restBreaks >= 2:
+                if lunch != -1:
+                    break2 = lunch + 200
+                    if break2 == -1:
+                        break2 = lunch + 200
+                else:
+                    break2 = startTime + 600
+                    if break2 == -1:
+                        break2 = startTime + 600
+                
+            break1 = toHM(break1)
+            lunch = toHM(lunch)
+            break2 = toHM(break2)
+            emp.assignBreaks(break1, lunch, break2)
+        
+        print("Name: " + emp.name + " Start: " + str(startTime))
+        
+        if restBreaks == 0 and mealBreaks == 0:
             return
         
-        if restBreaks >= 1:
+        if restBreaks == 1:
+            break1 = self.assignRestBreak(emp, startTime + 150, 0)
+            if break1 == -1:
+                break1 = startTime + 150
+        elif restBreaks > 1:
             break1 = self.assignRestBreak(emp, startTime + 200, 0)
+            if break1 == -1:
+                break1 = startTime + 200
             
-        
         if mealBreaks > 0:
-            lunch = self.assignMealBreak(emp, break1 + 200, 0)
+            if restBreaks == 0:
+                lunch = self.assignMealBreak(emp, startTime + 250, 0)
+                if lunch == -1:
+                    lunch = startTime + 250
+            elif restBreaks == 1:
+                ##person is working ~6 Hours
+                lunch = self.assignMealBreak(emp, break1 + 150, 0)
+                if lunch == -1:
+                    lunch = break1 + 150
+            elif break1 != -1:
+                lunch = self.assignMealBreak(emp, break1 + 200, 0)
+                if lunch == -1:
+                    lunch = break1 + 200
+            else:
+                lunch = -1
             
         if restBreaks >= 2:
-            break2 = self.assignRestBreak(emp, lunch + 200, 0)
+            if lunch != -1:
+                break2 = self.assignRestBreak(emp, lunch + 200, 0)
+                if break2 == -1:
+                    break2 = lunch + 200
+            else:
+                break2 = self.assignRestBreak(emp, startTime + 600, 0)
+                if break2 == -1:
+                    break2 = startTime + 600
             
         break1 = toHM(break1)
         lunch = toHM(lunch)
@@ -164,7 +298,7 @@ def toHP(time, pm):
     if time == 0:
         return 0
     
-    if time < 13:
+    if time <= 12:
         ##single digit hour
         time = time * 100
         if pm:
@@ -181,7 +315,7 @@ def toHP(time, pm):
     elif minutes == 45:
         minutes = 75
     
-    if pm:
+    if pm and (time < 1200):
         hours = hours + 1200
     
     return hours + minutes
