@@ -66,7 +66,7 @@ departments = {"Cashier": cBreaks,
 ##----------ROOT SETUP---------##
 #################################
 root = Tk()
-root.title("Break Scheduler V1.4")
+root.title("Break Scheduler V1.0.3")
 root.state("iconic")
 
 ##getting number of emps
