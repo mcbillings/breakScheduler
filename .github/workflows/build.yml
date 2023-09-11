@@ -24,22 +24,22 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ./dist/BreakScheduler.exe
-          
+
   package-and-publish-ubuntu:
     name: Package and Publish - Ubuntu
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - name: Install Python
-          uses: actions/setup-python@v1
-          with:
-            python-version: '3.7'
-        - name: Install requirements
-          run: pip install -r requirements.txt
-        - name: Run PyInstaller
-          run: python -m PyInstaller --onefile main.py --name 'BreakScheduler' --noconsole
-        
-        - name: Upload artifact
-          uses: softprops/action-gh-release@v1
-          with:
-            files: ./dist/BreakScheduler
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.7'
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Run PyInstaller
+        run: python -m PyInstaller --onefile main.py --name 'BreakScheduler' --noconsole
+      
+      - name: Upload artifact
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./dist/BreakScheduler
