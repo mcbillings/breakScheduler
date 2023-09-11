@@ -20,20 +20,7 @@ jobs:
       - name: Run PyInstaller
         run: python -m PyInstaller --onefile main.py --name 'BreakScheduler' --icon=breakScheduler.ico
       
-      - name: Get Latest Release
-        id: latest_release
-        uses: cardinalby/git-get-release-action@1.2.4
-        env: 
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        with:
-          latest: 1
-      
       - name: Upload artifact
-        uses: actions/upload-release-asset@v1
-        env: 
-         GITHUB_TOKEN: ${{ github.token }}
-        with: 
-          upload_url: ${{ steps.latest_release.outputs.url }}
-          asset_path: ./dist/BreakScheduler.exe
-          asset_name: Break Scheduler
-          asset_content_type: application/octet-stream
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./dist/BreakScheduler.exe
