@@ -6,26 +6,26 @@ on:
       - 'v*'
 
 jobs:
-  runs-on: windows-latest
   package-and-publish:
-    - uses: actions/checkout@v3
-    - name: Install Python
-      uses: actions/setup-python@v1
-      with:
-        python-version: '3.7'
-    - name: Install requirements
-      run: pip install -r requirements.txt
-    - name: Run PyInstaller
-      run: python -m PyInstaller --onefile main.py --name 'Break Scheduler' --icon=breakScheduler.
-    
-    - name: Get Latest Release
-      id: latest_release
-      uses: jossef/action-latest-release-info@v1.2.2
-    
-    - name: Upload artifact
-      uses: actions/upload-release-asset@v1
-      with: 
-        upload_url: ${{ steps.latest_release.outputs.upload_url }}
-        asset_path: ./dist/BreakScheduler
-
-
+    name: Package and Publish
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.7'
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Run PyInstaller
+        run: python -m PyInstaller --onefile main.py --name 'Break Scheduler' --icon=breakScheduler.
+      
+      - name: Get Latest Release
+        id: latest_release
+        uses: jossef/action-latest-release-info@v1.2.2
+      
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1
+        with: 
+          upload_url: ${{ steps.latest_release.outputs.upload_url }}
+          asset_path: ./dist/BreakScheduler
