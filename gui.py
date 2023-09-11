@@ -8,7 +8,6 @@ from Pmw import ScrolledFrame
 from tkinter import filedialog
 import csv
 import xlsxwriter
-from readFile import *
 from openpyxl import *
 import re
 
@@ -72,7 +71,7 @@ root.state("iconic")
 
 ##getting number of emps
 numEmps = simpledialog.askinteger("Enter number of Employees", "Enter number of Employees")
-root.state("zoomed")
+root.state("normal")
 
 #Grid configuration
 Grid.columnconfigure(root, 0, weight = 4)
