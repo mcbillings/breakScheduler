@@ -27,13 +27,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           latest: 1
-      - name: see file structure
-        run: ls ./dist/
       
       - name: Upload artifact
         uses: actions/upload-release-asset@v1
         with: 
           upload_url: ${{ steps.latest_release.outputs.url }}
-          asset_path: ./dist/BreakScheduler
+          asset_path: ./dist/BreakScheduler.exe
           asset_name: Break Scheduler
           asset_content_type: application/octet-stream
