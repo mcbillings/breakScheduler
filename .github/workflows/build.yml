@@ -24,6 +24,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ./dist/BreakScheduler.exe
+          
   package-and-publish-ubuntu:
     name: Package and Publish - Ubuntu
       runs-on: ubuntu-latest
